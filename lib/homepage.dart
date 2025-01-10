@@ -11,6 +11,8 @@ import 'package:fmoviepage/skeleton_loading/popular_skeleton.dart';
 import 'package:fmoviepage/widget/icon_searchbar.dart';
 import 'package:fmoviepage/widget/main_drawer.dart';
 import 'package:fmoviepage/widget/main_widget/main_carousel_slider.dart';
+import 'package:fmoviepage/widget/main_widget/main_now_playing.dart';
+import 'package:fmoviepage/widget/main_widget/main_popular_movie.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,6 +23,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<MovieModel> _topratedMovie = [];
+  List<MovieModel> _nowPlayingMovie = [];
+  List<MovieModel> _popularMovie = [];
   bool isLoading = true;
 
   @override
@@ -36,6 +40,8 @@ class _HomePageState extends State<HomePage> {
   getMovieData() async {
     var data = MovieData();
     _topratedMovie = await data.fetchTopRatedMovie();
+    _nowPlayingMovie = await data.fetchNowPlayingMovie();
+    _popularMovie = await data.fetchPopularMovie();
     setState(() {
       isLoading = false;
     });
@@ -66,7 +72,6 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Flexible(
                   flex: 2,
-                  fit: FlexFit.tight,
                   child: Padding(
                     padding: const EdgeInsets.only(left: 16.0),
                     child: isLoading
@@ -77,12 +82,12 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(
                   width: 20,
                 ),
-                const Flexible(
+                Flexible(
                   flex: 1,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         "Now Playing",
                         style: TextStyle(
                           fontSize: 15,
@@ -90,9 +95,16 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       SizedBox(
+                        width: 350,
+                        height: 470,
+                        child: isLoading
+                            ? const NowSkeleton()
+                            : NowPlayingMovie(
+                                nowPlayingmovie: _nowPlayingMovie),
+                      ),
+                      const SizedBox(
                         height: 10,
                       ),
-                      NowSkeleton(),
                     ],
                   ),
                 )
@@ -112,18 +124,31 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: LayoutBuilder(builder: (context, constraints) {
-                // layoutbuilder를 사용하면 부모크기에 따라 다른 layout을 선택적으로 나오게 할 수 있음
-                double GridviewHeight = (constraints.maxWidth / 5) *
-                    1.3 *
-                    4; // 화면의 최대 넓이를 5로 나눔(5개씩 배열)/ *1을 하면 정사각형(점차 커지면 직사각형)/ *4 는 그리드 뷰가 4줄이라 가정하고 전체 gridview의 높이 계산하기 위함
-                return SizedBox(
-                  height: GridviewHeight,
-                  child: const PopularSkeleton(),
-                );
-              }),
-            ),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: isLoading
+                    ? LayoutBuilder(builder: (context, constraints) {
+                        // layoutbuilder를 사용하면 부모크기에 따라 다른 layout을 선택적으로 나오게 할 수 있음
+                        double GridviewHeight = (constraints.maxWidth / 5) *
+                            1.3 *
+                            4; // 화면의 최대 넓이를 5로 나눔(5개씩 배열)/ *1을 하면 정사각형(점차 커지면 직사각형)/ *4 는 그리드 뷰가 4줄이라 가정하고 전체 gridview의 높이 계산하기 위함
+                        return SizedBox(
+                          height: GridviewHeight,
+                          child: const PopularSkeleton(),
+                        );
+                      })
+                    : LayoutBuilder(builder: (context, constraints) {
+                        // layoutbuilder를 사용하면 부모크기에 따라 다른 layout을 선택적으로 나오게 할 수 있음
+                        double GridviewHeight = (constraints.maxWidth / 5) *
+                            1.3 *
+                            (_popularMovie.length) /
+                            5; // 화면의 최대 넓이를 5로 나눔(5개씩 배열)/ *1을 하면 정사각형(점차 커지면 직사각형)/ *4 는 그리드 뷰가 4줄이라 가정하고 전체 gridview의 높이 계산하기 위함
+                        return SizedBox(
+                          height: GridviewHeight,
+                          child: MovieGridView(
+                            popularMovie: _popularMovie,
+                          ),
+                        );
+                      })),
             const Footer()
           ],
         ),

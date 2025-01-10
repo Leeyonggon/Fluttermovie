@@ -9,11 +9,11 @@ class MainCarouselSlider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CarouselSlider(
-        items: topratedMovies.map((m) {
+        items: topratedMovies.map((movie) {
           return GestureDetector(
             onTap: () {},
             child: Image.network(
-              'https://image.tmdb.org/t/p/w500/${m.backdropPath}',
+              'https://image.tmdb.org/t/p/w500/${movie.backdropPath}',
               fit: BoxFit.cover,
               width: MediaQuery.of(context).size.width,
             ),

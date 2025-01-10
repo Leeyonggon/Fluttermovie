@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:fmoviepage/model/movie_model.dart';
 import 'package:http/http.dart' as http;
 
@@ -10,7 +9,7 @@ class MovieData {
 
   Future<List<MovieModel>> fetchTopRatedMovie() async {
     final response = await http.get(
-      Uri.parse('$baseUrl/top_rated?language=en-US&page=1'),
+      Uri.parse('$baseUrl/top_rated?language=ko&page=1&region=KR'),
       headers: {
         'Authorization': 'Bearer $bearerToken',
         'accept': 'application/json'
@@ -18,7 +17,45 @@ class MovieData {
     );
     if (response.statusCode == 200) {
       print(response.body);
-      return ((jsonDecode(response.body)['result'])
+      return ((jsonDecode(response.body)['results'])
+              as List) //List타입으로 캐스팅 => list에서 제공하는 map메소드를 사용하여 다른 메소드 호출
+          .map((e) => MovieModel.fromJson(e))
+          .toList();
+    } else {
+      throw Exception("Failed to load movie data");
+    }
+  }
+
+  Future<List<MovieModel>> fetchNowPlayingMovie() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/now_playing?language=ko&page=1&region=KR'),
+      headers: {
+        'Authorization': 'Bearer $bearerToken',
+        'accept': 'application/json'
+      },
+    );
+    if (response.statusCode == 200) {
+      print(response.body);
+      return ((jsonDecode(response.body)['results'])
+              as List) //List타입으로 캐스팅 => list에서 제공하는 map메소드를 사용하여 다른 메소드 호출
+          .map((e) => MovieModel.fromJson(e))
+          .toList();
+    } else {
+      throw Exception("Failed to load movie data");
+    }
+  }
+
+  Future<List<MovieModel>> fetchPopularMovie() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/popular?language=ko&page=1&region=KR'),
+      headers: {
+        'Authorization': 'Bearer $bearerToken',
+        'accept': 'application/json'
+      },
+    );
+    if (response.statusCode == 200) {
+      print(response.body);
+      return ((jsonDecode(response.body)['results'])
               as List) //List타입으로 캐스팅 => list에서 제공하는 map메소드를 사용하여 다른 메소드 호출
           .map((e) => MovieModel.fromJson(e))
           .toList();
